@@ -1,0 +1,4 @@
+# Firebase / API keys
+firebase_options.dart
+google_maps_api_key.json
+*.secret.json

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Location Share (Safari)</title>
+
+  <!-- ✅ 외부 CSS 연결 -->
+  <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>위치 공유</h1>
+    <p>
+      아래 버튼을 누르면 Safari에서 현재 위치 권한을 요청하고<br />
+      위치 정보를 상대방에게 전달합니다.
+    </p>
+
+    <button id="shareBtn">위치 공유하기</button>
+    <div class="status" id="status">대기 중…</div>
+    <pre id="debug"></pre>
+  </div>
+
+  <!-- ✅ Firebase + 위치 로직 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBzk_4YT5uIIcZFRYj_Two3_ewtwnzdydo",
+      authDomain: "finalproject-82e34.firebaseapp.com",
+      projectId: "finalproject-82e34",
+      storageBucket: "finalproject-82e34.firebasestorage.app",
+      messagingSenderId: "756113362326",
+      appId: "1:756113362326:web:333407f58c76f7f01a61b7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const btn = document.getElementById("shareBtn");
+    const statusEl = document.getElementById("status");
+    const debugEl = document.getElementById("debug");
+
+    // URL에서 sessionId 추출
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("sessionId");
+
+    if (!sessionId) {
+      statusEl.textContent = "❌ sessionId가 URL에 없습니다.";
+      btn.disabled = true;
+    }
+
+    function generateBId() {
+      return "B_" + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    }
+
+    btn.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        statusEl.textContent = "❌ 이 브라우저는 위치 기능을 지원하지 않습니다.";
+        return;
+      }
+
+      btn.disabled = true;
+      statusEl.textContent = "📍 위치 권한 요청 중…";
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const bId = generateBId();
+
+          statusEl.textContent = "📡 위치 전송 중…";
+
+          try {
+            await setDoc(
+              doc(db, "sessions", sessionId, "locations", bId),
+              {
+                role: "B",
+                lat,
+                lon,
+                updatedAt: serverTimestamp()
+              },
+              { merge: true }
+            );
+
+            statusEl.textContent = "✅ 위치 공유 완료! 앱으로 돌아가세요.";
+            debugEl.textContent = JSON.stringify({ lat, lon }, null, 2);
+          } catch (e) {
+            statusEl.textContent = "❌ 위치 전송 실패";
+            debugEl.textContent = e.message;
+            btn.disabled = false;
+          }
+        },
+        (err) => {
+          statusEl.textContent = "❌ 위치 권한 거부됨";
+          debugEl.textContent = err.message;
+          btn.disabled = false;
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
+      );
+    });
+  </script>
+</body>
+</html>
