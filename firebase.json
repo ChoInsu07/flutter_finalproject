@@ -1,1 +1,49 @@
-{"flutter":{"platforms":{"macos":{"default":{"projectId":"finalproject-82e34","appId":"1:756113362326:ios:66e800c2fd29ecfc1a61b7","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"finalproject-82e34","configurations":{"android":"1:756113362326:android:f69909adc3d6b60c1a61b7","ios":"1:756113362326:ios:a26dd5064ab54e551a61b7","macos":"1:756113362326:ios:66e800c2fd29ecfc1a61b7","web":"1:756113362326:web:333407f58c76f7f01a61b7","windows":"1:756113362326:web:8a073195a0ba9f761a61b7"}}},"android":{"default":{"projectId":"finalproject-82e34","appId":"1:756113362326:android:f69909adc3d6b60c1a61b7","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"finalproject-82e34","appId":"1:756113362326:ios:a26dd5064ab54e551a61b7","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "macos": {
+        "default": {
+          "projectId": "finalproject-82e34",
+          "appId": "1:756113362326:ios:66e800c2fd29ecfc1a61b7",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "finalproject-82e34",
+          "configurations": {
+            "android": "1:756113362326:android:f69909adc3d6b60c1a61b7",
+            "ios": "1:756113362326:ios:a26dd5064ab54e551a61b7",
+            "macos": "1:756113362326:ios:66e800c2fd29ecfc1a61b7",
+            "web": "1:756113362326:web:333407f58c76f7f01a61b7",
+            "windows": "1:756113362326:web:8a073195a0ba9f761a61b7"
+          }
+        }
+      },
+      "android": {
+        "default": {
+          "projectId": "finalproject-82e34",
+          "appId": "1:756113362326:android:f69909adc3d6b60c1a61b7",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "finalproject-82e34",
+          "appId": "1:756113362326:ios:a26dd5064ab54e551a61b7",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
